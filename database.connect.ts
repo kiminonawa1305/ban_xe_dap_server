@@ -7,28 +7,28 @@ const database = 'Ban_Xe_Dap';
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
-        strict: true,
+        strict: false, // đặt false để cho phép sử dụng các truy vấn không được hỗ trợ, vd: như distinct
         deprecationErrors: true,
     }
 });
 
-async function run() {
-    try {
-        await client.connect();
-        // Send a ping to confirm a successful connection
-        await client.db(database).command({ping: 1});
-    } finally {
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    }
+async function startDatabase() {
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db(database).command({ping: 1}).then(() => {
+            console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        }
+    ).catch(() => {
+        console.log("Failed to ping your deployment. Please check your connection details.");
+    });
 }
 
 async function close() {
     await client.close();
 }
 
-async function getAll() {
-    return await client.db(database).collection('xe_dap').find().toArray();
-}
+const connection = client.db(database);
 
-export {run, close, getAll};
+
+export {startDatabase, close, connection};
 
