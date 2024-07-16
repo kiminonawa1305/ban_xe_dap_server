@@ -3,6 +3,8 @@ import {PayRequest} from "../requests/pay.request";
 import {payProducts} from "./product.service";
 import {payFailed} from "../errors/error.enum";
 import {ObjectId} from "mongodb";
+import {CustomError} from "../errors/custom.error.type";
+import {InfoPayType} from "../types/infoPay.type";
 
 export default class BillService {
     private collection = 'bills';
@@ -26,6 +28,18 @@ export default class BillService {
         }).catch(() => {
             throw payFailed;
         });
+    }
+
+    public async getBills(_id: ObjectId) {
+        _id = ObjectId.createFromHexString(_id.toString());
+
+        return await this.billRepository.find({
+            "infoPay._id": _id
+        }).toArray().then((response) => {
+            return response.map((data) => data.infoPay)
+        }).catch(() => {
+            return [] as InfoPayType[]
+        })
     }
 
     public async checkBuy(productId: string, userId: string) {
